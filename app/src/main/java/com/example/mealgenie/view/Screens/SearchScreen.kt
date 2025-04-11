@@ -12,16 +12,26 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.sp
 import com.example.mealgenie.R
 
 @Composable
-fun HomeScreen() {
+fun SearchScreen() {
     Box(modifier = Modifier
         .fillMaxSize()
         .background(color = colorResource(R.color.Green_Primary_trans))
     ) {
-
+        Column(modifier = Modifier.fillMaxSize()
+            .align(Alignment.Center),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center) {
+            Text(
+                text = "Esta es la Pantalla Search",
+                style = TextStyle(
+                    fontSize = 30.sp,
+                    color = Color.Black
+                )
+            )
+        }
     }
 }
