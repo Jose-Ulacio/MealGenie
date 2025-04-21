@@ -56,14 +56,16 @@ dependencies {
     //Material2
     implementation ("androidx.compose.material:material")
     implementation ("androidx.compose.ui:ui-tooling-preview")
-    implementation(libs.androidx.material3)
     debugImplementation ("androidx.compose.ui:ui-tooling")
     implementation ("androidx.compose.material:material-icons-core")
     implementation ("androidx.compose.material:material-icons-extended")
 
     //Glide Compose
-    implementation(platform("androidx.compose:compose-bom:2025.02.00"))
-    implementation("com.github.bumptech.glide:compose:1.0.0-beta01")
+//    implementation(platform("androidx.compose:compose-bom:2025.02.00"))
+//    implementation("com.github.bumptech.glide:compose:1.0.0-beta01")
+
+    //Cargar Imagenes con Coil
+    implementation("io.coil-kt:coil-compose:2.4.0")
 
     //Ktor
     val ktorVersion = "3.1.0"

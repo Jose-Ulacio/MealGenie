@@ -10,4 +10,5 @@
     <color name="Background">#EFF5F4</color>
     <color name="Green_Primary">#00A277</color>
     <color name="Green_Primary_trans">#3300A277</color>
+    <color name="Red_Primary">#A2002B</color>
 </resources>

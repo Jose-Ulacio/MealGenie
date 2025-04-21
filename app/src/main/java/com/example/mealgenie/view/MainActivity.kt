@@ -1,6 +1,7 @@
 package com.example.mealgenie.view
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -25,6 +26,7 @@ import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -42,6 +44,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.mealgenie.R
+import com.example.mealgenie.data.repository.RecipeRepository
 import com.example.mealgenie.ui.theme.MealGenieTheme
 import com.example.mealgenie.view.Screens.HomeScreen
 import com.example.mealgenie.view.ItemsMenu.*
@@ -62,6 +65,7 @@ class MainActivity : ComponentActivity() {
                     isDarkMode = isDarkMode.value
                 )
             }
+
         }
     }
 }
@@ -83,7 +87,7 @@ fun MainDesign(
 
     Box(modifier = Modifier
         .fillMaxSize()
-        .background(color = colorResource(R.color.Green_Primary_trans))
+        .background(color = colorResource(R.color.Background))
     ){
         Scaffold(
             scaffoldState = scaffoldState,
@@ -91,7 +95,7 @@ fun MainDesign(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(color = colorResource(R.color.Green_Primary_trans))
+                        .background(color = colorResource(R.color.Background))
                 ) {
                     NavegacionInferior(
                         navController = navController,
@@ -111,6 +115,20 @@ fun MainDesign(
             }
         )
     }
+
+//    LaunchedEffect(null) {
+//        val recipeRepository = RecipeRepository()
+//
+//        Log.e("Hola", "Respuesta")
+//        val result = recipeRepository.getRecipes(
+//            number = 5,
+//            type = "main course",
+//            offset = 0
+//        )
+//        Log.e("Resultado", result.toString())
+//
+//
+//    }
 }
 
 @Composable
@@ -133,12 +151,7 @@ fun NavegacionInferior(
         // Añadimos una sombra más pronunciada para el efecto de elevación
         Surface(
             modifier = Modifier
-                .fillMaxWidth()
-                .shadow(
-                    elevation = 16.dp,
-                    shape = RoundedCornerShape(16.dp),
-                    clip = true
-                ),
+                .fillMaxWidth(),
             shape = RoundedCornerShape(16.dp),
             color = Color.White
         ) {
