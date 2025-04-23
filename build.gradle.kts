@@ -5,5 +5,6 @@ plugins {
     alias(libs.plugins.kotlin.compose) apply false
     id ("org.jetbrains.kotlin.plugin.serialization") version "1.9.24"
     //id("com.google.devtools.ksp") version "1.9.24-1.0.20" apply false
+    id("com.google.devtools.ksp") version "2.0.0-1.0.21" apply false  // KSP para Kotlin 2.0.0
 
 }

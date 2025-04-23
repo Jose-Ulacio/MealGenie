@@ -40,6 +40,9 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
@@ -51,6 +54,7 @@ import com.example.mealgenie.view.ItemsMenu.*
 import com.example.mealgenie.view.Screens.FavoriteScreen
 import com.example.mealgenie.view.Screens.HomeScreen
 import com.example.mealgenie.view.Screens.SearchScreen
+import com.example.mealgenie.viewmodel.RecipeViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -58,14 +62,19 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             val isDarkMode = remember { mutableStateOf(false) }
+            val viewModel: RecipeViewModel = viewModel(factory = object : ViewModelProvider.Factory{
+                override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                    return RecipeViewModel(applicationContext) as T
+                }
+            })
 
             MealGenieTheme(darkTheme = isDarkMode.value ) {
                 MainDesign(
                     onDarkModeToggle = {isDarkMode.value = !isDarkMode.value},
-                    isDarkMode = isDarkMode.value
+                    isDarkMode = isDarkMode.value,
+                    viewModel = viewModel
                 )
             }
-
         }
     }
 }
@@ -73,7 +82,8 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MainDesign(
     onDarkModeToggle: () -> Unit,
-    isDarkMode: Boolean
+    isDarkMode: Boolean,
+    viewModel: RecipeViewModel
 ) {
     val navController = rememberNavController()
     val scaffoldState = rememberScaffoldState()
@@ -110,25 +120,11 @@ fun MainDesign(
                     .fillMaxSize()
                     .padding(padding)
                 ){
-                    NavigationHost(navController)
+                    NavigationHost(navController, viewModel = viewModel)
                 }
             }
         )
     }
-
-//    LaunchedEffect(null) {
-//        val recipeRepository = RecipeRepository()
-//
-//        Log.e("Hola", "Respuesta")
-//        val result = recipeRepository.getRecipes(
-//            number = 5,
-//            type = "main course",
-//            offset = 0
-//        )
-//        Log.e("Resultado", result.toString())
-//
-//
-//    }
 }
 
 @Composable
@@ -206,6 +202,3 @@ fun NavegacionInferior(
         }
     }
 }
-
-
-

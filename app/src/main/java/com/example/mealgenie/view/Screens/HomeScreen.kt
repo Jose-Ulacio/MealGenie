@@ -69,11 +69,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.example.mealgenie.R
 import com.example.mealgenie.data.model.Recipe
+import com.example.mealgenie.view.Screens.AuxiliaryComponents.EmptyState
+import com.example.mealgenie.view.Screens.AuxiliaryComponents.ErrorMessage
+import com.example.mealgenie.view.Screens.AuxiliaryComponents.FullScreenLoading
 import com.example.mealgenie.viewmodel.RecipeViewModel
+import kotlinx.coroutines.launch
 import kotlin.random.Random
 
 @Composable
@@ -160,7 +165,8 @@ fun HomeScreen(viewModel: RecipeViewModel = viewModel()) {
                     RecipeGrid(
                         recipe = recipes,
                         gridState = gridState,
-                        isLoadingMore = isLoadingMore
+                        isLoadingMore = isLoadingMore,
+                        viewModel = viewModel
                     )
                 }
             }
@@ -236,15 +242,15 @@ fun RecipeTypeChips(
 @Composable
 fun RecipeCard(
     recipe: Recipe,
+    viewModel: RecipeViewModel,
     modifier: Modifier = Modifier) {
-//    val density = LocalDensity.current
-//    val height = produceState(initialValue = 0.dp) {
-//        val px = (500..600).random()
-//        val dp = (px / density.density).dp
-//        value = dp
-//    }
 
-    val isChecked by rememberSaveable { mutableStateOf(false) }
+    var isChecked by remember { mutableStateOf(false) }
+
+    //Comprobar si es favorito al iniciar
+    LaunchedEffect(recipe.id) {
+        isChecked = viewModel.isFavorite(recipe.id)
+    }
 
     Card(
         modifier = Modifier
@@ -309,7 +315,12 @@ fun RecipeCard(
 
                 IconToggleButton(
                      checked = isChecked,
-                     onCheckedChange = {},
+                     onCheckedChange = { checked ->
+                         isChecked = checked
+                         viewModel.viewModelScope.launch {
+                             viewModel.toggleFavorite(recipe)
+                         }
+                     },
                      modifier = Modifier.size(48.dp)
                          .align(Alignment.TopEnd),
                 ) {
@@ -336,6 +347,7 @@ fun RecipeGrid(
     recipe: List<Recipe>,
     gridState: LazyStaggeredGridState,
     isLoadingMore: Boolean,
+    viewModel: RecipeViewModel,
     modifier: Modifier = Modifier
 ) {
     Box(modifier = Modifier.fillMaxSize()){
@@ -351,6 +363,7 @@ fun RecipeGrid(
             ){recipe ->
                 RecipeCard(
                     recipe = recipe,
+                    viewModel = viewModel,
                     modifier = Modifier.fillMaxWidth()
                 )
             }
@@ -378,36 +391,3 @@ fun RecipeGrid(
 }
 
 //Componentes Auxiliares
-@Composable
-private fun FullScreenLoading() {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        CircularProgressIndicator()
-    }
-}
-
-@Composable
-private fun EmptyState() {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        Text("No se encontraron recetas")
-    }
-}
-
-@Composable
-private fun ErrorMessage(error: String, onDismiss: () -> Unit) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text("Error") },
-        text = { Text(error) },
-        confirmButton = {
-            Button(onClick = onDismiss) {
-                Text("OK")
-            }
-        }
-    )
-}

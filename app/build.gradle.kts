@@ -3,7 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     id("kotlinx-serialization")
-    //id("com.google.devtools.ksp")
+    id("com.google.devtools.ksp")
 
 }
 
@@ -60,10 +60,6 @@ dependencies {
     implementation ("androidx.compose.material:material-icons-core")
     implementation ("androidx.compose.material:material-icons-extended")
 
-    //Glide Compose
-//    implementation(platform("androidx.compose:compose-bom:2025.02.00"))
-//    implementation("com.github.bumptech.glide:compose:1.0.0-beta01")
-
     //Cargar Imagenes con Coil
     implementation("io.coil-kt:coil-compose:2.4.0")
 
@@ -85,11 +81,11 @@ dependencies {
     implementation("androidx.compose.runtime:runtime-livedata:1.7.8")
 
     //Room
-//    val room_version = "2.6.1"
-//    implementation("androidx.room:room-runtime:$room_version")
-//    ksp("androidx.room:room-compiler:$room_version")
+    val room_version = "2.7.0"
+    implementation("androidx.room:room-runtime:$room_version")
+    ksp("androidx.room:room-compiler:$room_version")
 //    //Room para corrutinas
-//    implementation("androidx.room:room-ktx:$room_version")
+    implementation("androidx.room:room-ktx:$room_version")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
