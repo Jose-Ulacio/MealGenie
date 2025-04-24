@@ -1,6 +1,11 @@
 package com.example.mealgenie.viewmodel
 
 import android.content.Context
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.mealgenie.data.model.Recipe
@@ -41,8 +46,35 @@ class RecipeViewModel(context: Context): ViewModel() {
     private var currentPage = 0
     private val pageSize = 10     //Numero de recetas que trae el servidor
 
+    private val _isRefreshing = MutableStateFlow(false)
+    val isRefreshing: StateFlow<Boolean> = _isRefreshing.asStateFlow()
+
     init {
         loadRecipes()
+    }
+
+    fun refreshRecipe(){
+        viewModelScope.launch {
+            _isRefreshing.value = true
+            try {
+                currentPage = 0
+                val newRecipes = repository.getRecipes(
+                    type = _selectedType.value,
+                    offset = 0, //Para que siempre cargue desde el inicio
+                    number = pageSize
+                )
+                newRecipes?.results.let {
+                    if (it != null) {
+                        _recipes.value = it //Reemplaza la lista
+                    }
+                    currentPage = 1
+                }
+            } catch (e: Exception){
+                _error.value = "Error al Refrescar"
+            } finally {
+                _isRefreshing.value = false
+            }
+        }
     }
 
     private fun loadRecipes() {
@@ -51,12 +83,12 @@ class RecipeViewModel(context: Context): ViewModel() {
             try {
                 val result = repository.getRecipes(
                     type = _selectedType.value,        //el chip seleccionado
-                    offset = currentPage * pageSize,
+                    offset = 0,
                     number = pageSize
                 )
                 result?.results?.let { newRecipes ->
-                    _recipes.value = _recipes.value + newRecipes
-                    currentPage++
+                    _recipes.value = newRecipes
+                    currentPage = 1
                 }
             } catch (e: Exception){
                 _error.value = e.message ?: "Error Desconocido"
@@ -89,9 +121,15 @@ class RecipeViewModel(context: Context): ViewModel() {
         }
     }
 
+    fun resetPagination(){
+        currentPage = 0
+        _recipes.value = emptyList()
+    }
+
     fun setRecipeType(type: String?){
         _selectedType.value = type
         resetAndLoadRecipes()
+        loadRecipes() //Nueva carga inicia
     }
 
     private fun resetAndLoadRecipes() {

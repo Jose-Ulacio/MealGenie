@@ -32,13 +32,10 @@ class ApiService() {
                 type?.let { parameter("type", it) }
 
             }
-            Log.e("respuesta", response.bodyAsText())
 
             if (response.status.isSuccess()){
-                Log.e("success", "Funciono")
                 Result.success(response.body())
             } else {
-                Log.e("error", "Negativo")
                 Result.failure(Exception("Error: ${response.status}"))
             }
         } catch (e: Exception){

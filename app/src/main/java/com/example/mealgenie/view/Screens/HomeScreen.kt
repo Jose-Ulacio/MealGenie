@@ -47,6 +47,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
@@ -77,106 +78,159 @@ import com.example.mealgenie.data.model.Recipe
 import com.example.mealgenie.view.Screens.AuxiliaryComponents.EmptyState
 import com.example.mealgenie.view.Screens.AuxiliaryComponents.ErrorMessage
 import com.example.mealgenie.view.Screens.AuxiliaryComponents.FullScreenLoading
+import com.example.mealgenie.view.Screens.AuxiliaryComponents.MainScreenStates
+import com.example.mealgenie.view.Screens.AuxiliaryComponents.rememberMainScreenState
 import com.example.mealgenie.viewmodel.RecipeViewModel
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import kotlinx.coroutines.launch
 import kotlin.random.Random
 
 @Composable
-fun HomeScreen(viewModel: RecipeViewModel = viewModel()) {
+fun HomeScreen(
+    viewModel: RecipeViewModel = viewModel(),
+    mainState: MainScreenStates = rememberMainScreenState()
+) {
     val recipes by viewModel.recipes.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val isLoadingMore by viewModel.isLoadingMore.collectAsState()
     val error by viewModel.error.collectAsState()
     val selectedType by viewModel.selectedType.collectAsState()
+    val isRefreshing by viewModel.isRefreshing.collectAsState()
 
     val gridState = rememberLazyStaggeredGridState()
+    var lastScrollPosition by remember { mutableIntStateOf(0) }
+    val swipeRefreshState = rememberSwipeRefreshState(isRefreshing = isRefreshing)
 
-    //Detectar cuando llegue al final de la Pagina
-    val isAtBottom = remember {
-        derivedStateOf {
-        gridState.layoutInfo.visibleItemsInfo.lastOrNull()?.index == gridState.layoutInfo.totalItemsCount -1
+    //Detectar cambios en el scroll
+    LaunchedEffect(gridState.isScrollInProgress) {
+        if (gridState.isScrollInProgress) {
+            val currentScrollPosition = gridState.firstVisibleItemScrollOffset
+            val isScrollingDown = currentScrollPosition > lastScrollPosition
+
+            if (isScrollingDown && mainState.isBottomBarVisible) {
+                mainState.updateVisibility(false)
+            } else if (!isScrollingDown && !mainState.isBottomBarVisible) {
+                mainState.updateVisibility(true)
+            }
+
+            lastScrollPosition = currentScrollPosition
+        } else {
+            // Al finalizar el scroll, nos aseguramos de mostrar la barra
+            if (!mainState.isBottomBarVisible) {
+                mainState.updateVisibility(true)
+            }
         }
     }
 
-    //Empieza a cargar mas recetas cuando se cumplen las condiciones
-    LaunchedEffect(isAtBottom) {
-        if (isAtBottom.value && !isLoadingMore && !isLoading){
+    //Detectar Scroll para la Paginacion
+    val shouldLoadMore = remember {
+        derivedStateOf {
+            val layoutInfo = gridState.layoutInfo
+            val lastItemVisible = layoutInfo.visibleItemsInfo.lastOrNull()
+
+            lastItemVisible?.index != null &&
+                    lastItemVisible.index >= layoutInfo.totalItemsCount - 2 &&
+                    !viewModel.isLoadingMore.value
+        }
+    }
+
+    LaunchedEffect(shouldLoadMore.value) {
+        if (shouldLoadMore.value) {
             viewModel.loadMoreRecipes()
         }
     }
 
-    Box(modifier = Modifier
-        .fillMaxSize()
-        .background(color = colorResource(R.color.Background))
+    SwipeRefresh(
+        state = swipeRefreshState,
+        onRefresh = { viewModel.refreshRecipe() },
+        modifier = Modifier.background(colorResource(R.color.Background))
     ) {
-        Column {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .systemBarsPadding() //respetar barras de Estados
-                    .height(48.dp)
-            ){
-                Row(modifier = Modifier
-                    .align(Alignment.CenterStart)
-                    .padding(start = 14.dp)
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(color = colorResource(R.color.Background))
+        ) {
+            Column {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .systemBarsPadding() //respetar barras de Estados
+                        .height(48.dp)
                 ) {
-                    Box(modifier = Modifier
-                        .width(36.dp)
-                        .height(36.dp)
-                        .background(
-                            color = Color.White,
-                            shape = RoundedCornerShape(10.dp)
-                        )
+                    Row(
+                        modifier = Modifier
+                            .align(Alignment.CenterStart)
+                            .padding(start = 14.dp)
                     ) {
-                        Image(
+                        Box(
                             modifier = Modifier
-                                .align(alignment = Alignment.Center),
-                            imageVector = ImageVector.vectorResource(R.drawable.ic_home),
-                            contentDescription = "Icon Home",
+                                .width(36.dp)
+                                .height(36.dp)
+                                .background(
+                                    color = Color.White,
+                                    shape = RoundedCornerShape(10.dp)
+                                )
+                        ) {
+                            Image(
+                                modifier = Modifier
+                                    .align(alignment = Alignment.Center),
+                                imageVector = ImageVector.vectorResource(R.drawable.ic_home),
+                                contentDescription = "Icon Home",
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.padding(10.dp))
+
+                        Text(
+                            modifier = Modifier
+                                .align(alignment = Alignment.CenterVertically),
+                            text = "Home",
+                            style = TextStyle(
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold
+                            )
                         )
                     }
+                }
 
-                    Spacer(modifier = Modifier.padding(10.dp))
+                //Lista Dinamica de Filtros
+                RecipeTypeChips(
+                    selectedType = selectedType,
+                    onTypeSelected = { type ->
+                        viewModel.setRecipeType(if (type == "All") null else type)
+                    }
+                )
 
-                    Text(
-                        modifier = Modifier
-                            .align(alignment = Alignment.CenterVertically),
-                        text = "Home",
-                        style = TextStyle(
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold
+                //Grid de Recetas
+                when {
+                    isLoading && recipes.isEmpty() -> {
+                        FullScreenLoading()
+                    }
+
+                    recipes.isEmpty() -> {
+                        EmptyState()
+                    }
+
+                    else -> {
+                        RecipeGrid(
+                            recipe = recipes,
+                            gridState = gridState,
+                            isLoadingMore = isLoadingMore,
+                            viewModel = viewModel
                         )
-                    )
+                    }
                 }
             }
 
-            //Lista Dinamica de Filtros
-            RecipeTypeChips(
-                selectedType = selectedType,
-                onTypeSelected = { type ->
-                    viewModel.setRecipeType(if (type == "All") null else type)}
-            )
-
-            //Grid de Recetas
-            when{
-                isLoading && recipes.isEmpty() -> { FullScreenLoading() }
-                recipes.isEmpty() -> { EmptyState() }
-                else -> {
-                    RecipeGrid(
-                        recipe = recipes,
-                        gridState = gridState,
-                        isLoadingMore = isLoadingMore,
-                        viewModel = viewModel
-                    )
-                }
+            //Manejo de Errores
+            error?.let { errorMessage ->
+                ErrorMessage(errorMessage) { viewModel.clearError() }
             }
-        }
-
-        //Manejo de Errores
-        error?.let {errorMessage ->
-            ErrorMessage(errorMessage) {viewModel.clearError() }
         }
     }
+
+
 }
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -228,10 +282,11 @@ fun RecipeTypeChips(
                     )
                     .clickable { onTypeSelected(item) }
                     .padding(horizontal = 12.dp)
-            ){
+            ) {
                 Text(
                     text = item,
-                    fontSize = 12.sp,
+                    fontSize = 6.sp,
+                    fontWeight = FontWeight.Bold,
                     color = if (isSelected) Color.White else colorResource(R.color.Red_Primary)
                 )
             }
@@ -243,9 +298,12 @@ fun RecipeTypeChips(
 fun RecipeCard(
     recipe: Recipe,
     viewModel: RecipeViewModel,
-    modifier: Modifier = Modifier) {
+    modifier: Modifier = Modifier
+) {
 
     var isChecked by remember { mutableStateOf(false) }
+
+    val cardHeight = remember(recipe.id) { (100..300).random().dp }
 
     //Comprobar si es favorito al iniciar
     LaunchedEffect(recipe.id) {
@@ -261,12 +319,12 @@ fun RecipeCard(
         Column(
             modifier = Modifier.fillMaxWidth()
         ) {
-            Box (
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(Random.nextInt(100,300).dp)
+                    .height(cardHeight)
 
-            ){
+            ) {
                 //Imagen de la receta
                 AsyncImage(
                     model = recipe.image,
@@ -280,9 +338,10 @@ fun RecipeCard(
                 )
 
                 Box(
-                    modifier = modifier.fillMaxHeight(0.5f)
+                    modifier = modifier
+                        .fillMaxHeight(0.5f)
                         .align(Alignment.BottomEnd)
-                ){
+                ) {
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
@@ -314,29 +373,30 @@ fun RecipeCard(
                 )
 
                 IconToggleButton(
-                     checked = isChecked,
-                     onCheckedChange = { checked ->
-                         isChecked = checked
-                         viewModel.viewModelScope.launch {
-                             viewModel.toggleFavorite(recipe)
-                         }
-                     },
-                     modifier = Modifier.size(48.dp)
-                         .align(Alignment.TopEnd),
+                    checked = isChecked,
+                    onCheckedChange = { checked ->
+                        isChecked = checked
+                        viewModel.viewModelScope.launch {
+                            viewModel.toggleFavorite(recipe)
+                        }
+                    },
+                    modifier = Modifier
+                        .size(48.dp)
+                        .align(Alignment.TopEnd),
                 ) {
-                     Icon(
-                         painter = painterResource(
-                             id = if(isChecked){
-                                 R.drawable.favorite_24dp_fill
-                             } else {
-                                 R.drawable.favorite_24dp_outline
-                             }
-                         ),
-                         contentDescription = null,
-                         tint = colorResource(R.color.Red_Primary),
-                         modifier = Modifier.size(24.dp)
-                     )
-                 }
+                    Icon(
+                        painter = painterResource(
+                            id = if (isChecked) {
+                                R.drawable.favorite_24dp_fill
+                            } else {
+                                R.drawable.favorite_24dp_outline
+                            }
+                        ),
+                        contentDescription = null,
+                        tint = colorResource(R.color.Red_Primary),
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
             }
         }
     }
@@ -350,7 +410,7 @@ fun RecipeGrid(
     viewModel: RecipeViewModel,
     modifier: Modifier = Modifier
 ) {
-    Box(modifier = Modifier.fillMaxSize()){
+    Box(modifier = Modifier.fillMaxSize()) {
         LazyVerticalStaggeredGrid(
             columns = StaggeredGridCells.Fixed(2),
             state = gridState,
@@ -360,34 +420,65 @@ fun RecipeGrid(
         ) {
             items(
                 items = recipe
-            ){recipe ->
+            ) { recipe ->
                 RecipeCard(
                     recipe = recipe,
                     viewModel = viewModel,
                     modifier = Modifier.fillMaxWidth()
                 )
             }
-
-            //Footer de Carga
-            if (isLoadingMore){
-                item{
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
-                        contentAlignment = Alignment.Center
-                    ){
-                        CircularProgressIndicator()
-                        Text(
-                            text = "Cargando mas Recetas...",
-                            modifier = Modifier.padding(top = 8.dp)
-                        )
-                    }
+            item() {
+                if (isLoadingMore) {
+                    LoadingMoreItem()
                 }
             }
         }
+    }
 
+    //Footer de Carga
+    if (isLoadingMore) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            CircularProgressIndicator(
+                modifier = Modifier.size(24.dp),
+                strokeWidth = 2.dp,
+                color = colorResource(R.color.Green_Primary)
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "Cargando más recetas...",
+                style = TextStyle(
+                    color = colorResource(R.color.Green_Primary),
+                    fontSize = 14.sp
+                )
+            )
+        }
     }
 }
 
-//Componentes Auxiliares
+@Composable
+fun LoadingMoreItem() {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        CircularProgressIndicator(
+            modifier = Modifier.size(24.dp),
+            color = colorResource(R.color.Green_Primary),
+            strokeWidth = 2.dp
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = "Cargando más recetas...",
+            color = colorResource(R.color.Green_Primary)
+        )
+    }
+}
+

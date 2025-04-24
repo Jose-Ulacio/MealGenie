@@ -5,6 +5,11 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -14,6 +19,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.BottomAppBar
@@ -51,6 +57,8 @@ import com.example.mealgenie.data.repository.RecipeRepository
 import com.example.mealgenie.ui.theme.MealGenieTheme
 import com.example.mealgenie.view.Screens.HomeScreen
 import com.example.mealgenie.view.ItemsMenu.*
+import com.example.mealgenie.view.Screens.AuxiliaryComponents.MainScreenStates
+import com.example.mealgenie.view.Screens.AuxiliaryComponents.rememberMainScreenState
 import com.example.mealgenie.view.Screens.FavoriteScreen
 import com.example.mealgenie.view.Screens.HomeScreen
 import com.example.mealgenie.view.Screens.SearchScreen
@@ -87,7 +95,7 @@ fun MainDesign(
 ) {
     val navController = rememberNavController()
     val scaffoldState = rememberScaffoldState()
-    val scope = rememberCoroutineScope()
+    val mainState = rememberMainScreenState()
 
     val navigationItem = listOf(
         HomeScreen,
@@ -102,16 +110,24 @@ fun MainDesign(
         Scaffold(
             scaffoldState = scaffoldState,
             bottomBar = {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(color = colorResource(R.color.Background))
+                AnimatedVisibility(
+                    visible = mainState.isBottomBarVisible,
+                    enter = slideInVertically { it } + fadeIn(),
+                    exit = slideOutVertically { it } + fadeOut(),
+                    modifier = Modifier.navigationBarsPadding()
                 ) {
-                    NavegacionInferior(
-                        navController = navController,
-                        navigationItem = navigationItem,
-                        onDarkModeToggle = onDarkModeToggle,
-                        isDarkMode = isDarkMode)
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(color = colorResource(R.color.Background))
+                    ) {
+                        NavegacionInferior(
+                            navController = navController,
+                            navigationItem = navigationItem,
+                            onDarkModeToggle = onDarkModeToggle,
+                            isDarkMode = isDarkMode
+                        )
+                    }
                 }
             },
             modifier = Modifier.background(Color.Transparent),
@@ -120,7 +136,7 @@ fun MainDesign(
                     .fillMaxSize()
                     .padding(padding)
                 ){
-                    NavigationHost(navController, viewModel = viewModel)
+                    NavigationHost(navController, viewModel = viewModel, mainState)
                 }
             }
         )
@@ -144,7 +160,6 @@ fun NavegacionInferior(
         modifier = Modifier
             .padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
     ) {
-        // Añadimos una sombra más pronunciada para el efecto de elevación
         Surface(
             modifier = Modifier
                 .fillMaxWidth(),

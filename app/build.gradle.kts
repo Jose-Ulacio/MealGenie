@@ -84,8 +84,10 @@ dependencies {
     val room_version = "2.7.0"
     implementation("androidx.room:room-runtime:$room_version")
     ksp("androidx.room:room-compiler:$room_version")
-//    //Room para corrutinas
+    //Room para corrutinas
     implementation("androidx.room:room-ktx:$room_version")
+
+    implementation ("com.google.accompanist:accompanist-swiperefresh:0.27.0")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
