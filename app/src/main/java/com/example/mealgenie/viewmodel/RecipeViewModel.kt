@@ -2,6 +2,7 @@ package com.example.mealgenie.viewmodel
 
 import android.content.Context
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -46,8 +47,16 @@ class RecipeViewModel(context: Context): ViewModel() {
     private var currentPage = 0
     private val pageSize = 10     //Numero de recetas que trae el servidor
 
+    //Refrescar
     private val _isRefreshing = MutableStateFlow(false)
     val isRefreshing: StateFlow<Boolean> = _isRefreshing.asStateFlow()
+
+    //Search
+    private val _searchQuery = MutableStateFlow("")
+    val searchQuery: StateFlow<String> = _searchQuery
+
+    private val _searchResults = MutableStateFlow<List<Recipe>>(emptyList())
+    val searchResults: StateFlow<List<Recipe>> = _searchResults
 
     init {
         loadRecipes()
@@ -136,6 +145,34 @@ class RecipeViewModel(context: Context): ViewModel() {
         _recipes.value = emptyList()
         currentPage = 0
         loadRecipes()
+    }
+
+    //Funciones para la Busqueda de Recetas
+    fun setSearchQuery(query: String){
+        _searchQuery.value = query
+        if (query.length > 2){
+            //Solo se ejecuta la busqueda cuando hay dos caracteres
+            searchRecipes()
+        } else {
+            _searchResults.value = emptyList()
+        }
+    }
+
+    private fun searchRecipes() {
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                val results = repository.apiService.searchRecipes(
+                    query = searchQuery.value,
+                    number = 10
+                )
+                _searchResults.value = results?.results ?: emptyList()
+            } catch (e: Exception){
+                _error.value = "Error al Buscar: ${e.message}"
+            } finally {
+                _isLoading.value = false
+            }
+        }
     }
 
     //Funcion para limpiar Error

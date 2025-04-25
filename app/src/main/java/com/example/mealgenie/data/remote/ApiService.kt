@@ -32,7 +32,6 @@ class ApiService() {
                 type?.let { parameter("type", it) }
 
             }
-
             if (response.status.isSuccess()){
                 Result.success(response.body())
             } else {
@@ -43,4 +42,17 @@ class ApiService() {
             Result.failure(e)
         }
     }
+
+    suspend fun searchRecipes(
+        query: String?,
+        number: Int
+    ): RecipeResponse? {
+        return apiClient.get("$BASE_URL/recipes/complexSearch"){
+            parameter("apiKey", API_KEY)
+            parameter("query", query)
+            parameter("number", number)
+        }.body()
+    }
+
+
 }

@@ -31,7 +31,7 @@ fun NavigationHost(
             FavoriteScreen(viewModel, mainState)
         }
         composable(SearchScreen.route){
-            SearchScreen()
+            SearchScreen(viewModel, mainState)
         }
     }
 }
