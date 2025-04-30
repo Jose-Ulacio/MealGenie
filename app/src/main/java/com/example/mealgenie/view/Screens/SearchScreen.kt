@@ -1,12 +1,12 @@
 package com.example.mealgenie.view.Screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -23,6 +23,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
@@ -38,14 +39,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.room.Query
 import com.example.mealgenie.R
 import com.example.mealgenie.data.model.Recipe
 import com.example.mealgenie.view.Screens.AuxiliaryComponents.FullScreenLoading
@@ -56,7 +55,8 @@ import com.example.mealgenie.viewmodel.RecipeViewModel
 @Composable
 fun SearchScreen(
     viewModel: RecipeViewModel = viewModel(),
-    mainState: MainScreenStates = rememberMainScreenState()
+    mainState: MainScreenStates = rememberMainScreenState(),
+    onRecipeClick: (Int) -> Unit = {}
 ) {
     val searchResults by viewModel.searchResults.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
@@ -88,7 +88,7 @@ fun SearchScreen(
 
     Box(modifier = Modifier
         .fillMaxSize()
-        .background(color = colorResource(R.color.Background))
+        .background(MaterialTheme.colors.background)
     ) {
         Column {
             Box(
@@ -105,7 +105,7 @@ fun SearchScreen(
                         .width(36.dp)
                         .height(36.dp)
                         .background(
-                            color = Color.White,
+                            color = MaterialTheme.colors.surface,
                             shape = RoundedCornerShape(10.dp)
                         )
                     ) {
@@ -114,7 +114,7 @@ fun SearchScreen(
                                 .align(alignment = Alignment.Center),
                             painter = painterResource(R.drawable.ic_search),
                             contentDescription = "Icon Search",
-                            tint = colorResource(R.color.Green_Primary)
+                            tint = MaterialTheme.colors.primary
                         )
                     }
                     Text(
@@ -146,7 +146,8 @@ fun SearchScreen(
                 searchResults.isEmpty() -> EmptySearchResults()
                 else -> RecipeSearchGrid(
                     recipes = searchResults,
-                    viewModel = viewModel
+                    viewModel = viewModel,
+                    onRecipeClick = onRecipeClick
                 )
             }
 
@@ -157,7 +158,9 @@ fun SearchScreen(
 @Composable
 fun RecipeSearchGrid(
     recipes: List<Recipe>,
-    viewModel: RecipeViewModel
+    viewModel: RecipeViewModel,
+    onRecipeClick: (Int) -> Unit = {}
+
 ) {
     LazyVerticalStaggeredGrid(
         columns = StaggeredGridCells.Fixed(2),
@@ -171,6 +174,7 @@ fun RecipeSearchGrid(
                 recipe = recipe,
                 viewModel = viewModel,
                 modifier = Modifier.fillMaxWidth()
+                    .clickable { onRecipeClick(recipe.id) }
             )
         }
     }
@@ -188,13 +192,13 @@ fun SearchBar(
         modifier = modifier
             .fillMaxWidth()
             .height(56.dp)
-            .background(Color.White, RoundedCornerShape(28.dp)),
+            .background(MaterialTheme.colors.surface, RoundedCornerShape(28.dp)),
         placeholder = { Text("Buscar recetas...") },
         leadingIcon = {
             Icon(
                 painter = painterResource(R.drawable.ic_search),
                 contentDescription = null,
-                tint = colorResource(R.color.Green_Primary)
+                tint = MaterialTheme.colors.primary
             )
         },
         trailingIcon = {
@@ -205,7 +209,7 @@ fun SearchBar(
                     Icon(
                         painter = painterResource(R.drawable.ic_delete),
                         contentDescription = "Borrar",
-                        tint = colorResource(R.color.Green_Primary)
+                        tint = MaterialTheme.colors.primary
                     )
                 }
             }
@@ -214,12 +218,12 @@ fun SearchBar(
             backgroundColor = Color.Transparent,
             focusedIndicatorColor = Color.Transparent,
             unfocusedIndicatorColor = Color.Transparent,
-            cursorColor = colorResource(R.color.Green_Primary)
+            cursorColor = MaterialTheme.colors.primary
         ),
         singleLine = true,
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
         keyboardActions = KeyboardActions(
-            onSearch = { /* Puedes añadir acción adicional al presionar buscar */ }
+            onSearch = {  }
         )
     )
 }
@@ -234,12 +238,12 @@ fun PlaceHolderSearch() {
         Icon(
             painter = painterResource(R.drawable.ic_search),
             contentDescription = null,
-            tint = colorResource(R.color.Green_Primary),
+            tint = MaterialTheme.colors.primary,
             modifier = Modifier.size(64.dp)
         )
         Text(
             text = "Buscar recetas por nombre",
-            color = colorResource(R.color.Green_Primary),
+            color = MaterialTheme.colors.primary,
             modifier = Modifier.padding(top = 16.dp)
         )
     }
@@ -255,12 +259,12 @@ fun EmptySearchResults() {
         Icon(
             painter = painterResource(R.drawable.ic_cookie),
             contentDescription = null,
-            tint = colorResource(R.color.Green_Primary),
+            tint = MaterialTheme.colors.primary,
             modifier = Modifier.size(64.dp)
         )
         Text(
             text = "No se encontraron recetas",
-            color = colorResource(R.color.Green_Primary)
+            color = MaterialTheme.colors.primary
         )
     }
 }

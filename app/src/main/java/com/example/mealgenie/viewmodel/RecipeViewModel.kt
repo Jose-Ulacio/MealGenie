@@ -1,15 +1,11 @@
 package com.example.mealgenie.viewmodel
 
 import android.content.Context
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.mealgenie.R
 import com.example.mealgenie.data.model.Recipe
+import com.example.mealgenie.data.model.RecipeDetailResponse
 import com.example.mealgenie.data.repository.FavoriteRepository
 import com.example.mealgenie.data.repository.RecipeRepository
 import kotlinx.coroutines.flow.Flow
@@ -20,6 +16,8 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 
 class RecipeViewModel(context: Context): ViewModel() {
+    private val appContext = context.applicationContext
+
     private val repository = RecipeRepository()
     private val favoriteRepository = FavoriteRepository(context)
 
@@ -58,6 +56,9 @@ class RecipeViewModel(context: Context): ViewModel() {
     private val _searchResults = MutableStateFlow<List<Recipe>>(emptyList())
     val searchResults: StateFlow<List<Recipe>> = _searchResults
 
+    private val _recipeDetail = MutableStateFlow<RecipeDetailResponse?>(null)
+    val recipeDetail: StateFlow<RecipeDetailResponse?> = _recipeDetail.asStateFlow()
+
     init {
         loadRecipes()
     }
@@ -79,7 +80,7 @@ class RecipeViewModel(context: Context): ViewModel() {
                     currentPage = 1
                 }
             } catch (e: Exception){
-                _error.value = "Error al Refrescar"
+                _error.value = appContext.getString(R.string.refresh_error)
             } finally {
                 _isRefreshing.value = false
             }
@@ -100,7 +101,7 @@ class RecipeViewModel(context: Context): ViewModel() {
                     currentPage = 1
                 }
             } catch (e: Exception){
-                _error.value = e.message ?: "Error Desconocido"
+                _error.value = e.message ?: appContext.getString(R.string.unknown_error)
             } finally {
                 _isLoading.value = false
             }
@@ -123,16 +124,11 @@ class RecipeViewModel(context: Context): ViewModel() {
                     currentPage++
                 }
             } catch (e:Exception){
-                _error.value = e.message ?: "Error al Cargar mas Recetas"
+                _error.value = e.message ?: appContext.getString(R.string.error_loading_more_recipes)
             } finally {
                 _isLoadingMore.value = false
             }
         }
-    }
-
-    fun resetPagination(){
-        currentPage = 0
-        _recipes.value = emptyList()
     }
 
     fun setRecipeType(type: String?){
@@ -168,7 +164,7 @@ class RecipeViewModel(context: Context): ViewModel() {
                 )
                 _searchResults.value = results?.results ?: emptyList()
             } catch (e: Exception){
-                _error.value = "Error al Buscar: ${e.message}"
+                _error.value = appContext.getString(R.string.error_search, e.message ?: "")
             } finally {
                 _isLoading.value = false
             }
@@ -191,6 +187,20 @@ class RecipeViewModel(context: Context): ViewModel() {
         }
     }
 
+    suspend fun toggleFavorite2(recipe: RecipeDetailResponse) {
+        if (isFavorite(recipe.id)) {
+            favoriteRepository.removeFavorite(recipe.id)
+        } else {
+            // Convierte RecipeDetailResponse a Recipe si es necesario
+            val favoriteRecipe = Recipe(
+                id = recipe.id,
+                title = recipe.title,
+                image = recipe.image
+            )
+            favoriteRepository.addFavorite(favoriteRecipe)
+        }
+    }
+
     //verifica si una receta especifica esta marcada como favorita
     suspend fun isFavorite(recipeId: Int): Boolean{
         return favoriteRepository.isFavorite(recipeId)
@@ -199,9 +209,21 @@ class RecipeViewModel(context: Context): ViewModel() {
     fun getFavorites(): Flow<List<Recipe>> {
         return favoriteRepository.getFavorites()
             .catch { e ->
-                _error.value = e.message ?: "Error Cargando Favoritos"
+                _error.value = e.message ?: appContext.getString(R.string.error_loading_favorites)
                 emit(emptyList()) //en caso de error retornara una lista vacia
             }
     }
 
+    fun loadRecipeDetails(id: Int){
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                _recipeDetail.value = repository.getRecipeDetails(id)
+            } catch (e: Exception){
+                _error.value = appContext.getString(R.string.error_loading_recipe_details)
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
 }

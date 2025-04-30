@@ -1,4 +1,10 @@
 <resources>
     <string name="app_name">MealGenie</string>
     <string name="title_activity_home_screen">HomeScreenActivity</string>
+    <string name="error_loading_recipe_details">Error loading recipe details</string>
+    <string name="error_loading_favorites">Error Loading Favorites</string>
+    <string name="error_loading_more_recipes">Error Loading More Recipes</string>
+    <string name="unknown_error">Unknown Error</string>
+    <string name="refresh_error">Refresh Error</string>
+    <string name="error_search">Error while searching: %s</string>
 </resources>

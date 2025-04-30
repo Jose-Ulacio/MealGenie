@@ -1,14 +1,11 @@
 package com.example.mealgenie.data.remote
 
-import android.util.Log
+import com.example.mealgenie.data.model.RecipeDetailResponse
 import com.example.mealgenie.data.model.RecipeResponse
-import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
-import io.ktor.client.statement.bodyAsText
 import io.ktor.http.isSuccess
-import kotlinx.coroutines.delay
 
 class ApiService() {
     private val apiClient = KtorClient.apiClient()
@@ -43,6 +40,7 @@ class ApiService() {
         }
     }
 
+    //Buscar receta por nombre
     suspend fun searchRecipes(
         query: String?,
         number: Int
@@ -51,6 +49,13 @@ class ApiService() {
             parameter("apiKey", API_KEY)
             parameter("query", query)
             parameter("number", number)
+        }.body()
+    }
+
+    //Obtener detalles de la Receta
+    suspend fun getRecipeDetails(id: Int): RecipeDetailResponse{
+        return apiClient.get("$BASE_URL/recipes/$id/information"){
+            parameter("apiKey", API_KEY)
         }.body()
     }
 

@@ -2,6 +2,7 @@ package com.example.mealgenie.view.Screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,13 +15,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Icon
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -51,7 +51,9 @@ import com.example.mealgenie.viewmodel.RecipeViewModel
 @Composable
 fun FavoriteScreen(
     viewModel: RecipeViewModel = viewModel(),
-    mainState: MainScreenStates = rememberMainScreenState()
+    mainState: MainScreenStates = rememberMainScreenState(),
+    onRecipeClick: (Int) -> Unit = {}
+
 ) {
     val favorites by viewModel.getFavorites().collectAsState(initial = emptyList())
     val isLoading by viewModel.isLoading.collectAsState()
@@ -83,7 +85,7 @@ fun FavoriteScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(color = colorResource(R.color.Background))
+            .background(MaterialTheme.colors.background)
     ) {
         Column {
             Box(
@@ -102,7 +104,7 @@ fun FavoriteScreen(
                             .width(36.dp)
                             .height(36.dp)
                             .background(
-                                color = Color.White,
+                                color = MaterialTheme.colors.surface,
                                 shape = RoundedCornerShape(10.dp)
                             )
                     ) {
@@ -145,6 +147,7 @@ fun FavoriteScreen(
                                 recipe = recipe,
                                 viewModel = viewModel,
                                 modifier = Modifier.fillMaxWidth()
+                                    .clickable { onRecipeClick(recipe.id) }
                             )
                         }
                     }

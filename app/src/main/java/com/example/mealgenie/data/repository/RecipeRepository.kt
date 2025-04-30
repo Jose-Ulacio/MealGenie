@@ -1,5 +1,6 @@
 package com.example.mealgenie.data.repository
 
+import com.example.mealgenie.data.model.RecipeDetailResponse
 import com.example.mealgenie.data.model.RecipeResponse
 import com.example.mealgenie.data.remote.ApiService
 
@@ -17,5 +18,10 @@ class RecipeRepository() {
             offset = offset,
             number = number
         ).getOrNull()
+    }
+
+    //Obtener Detalles de la Receta
+    suspend fun getRecipeDetails(id: Int): RecipeDetailResponse{
+        return apiService.getRecipeDetails(id)
     }
 }
