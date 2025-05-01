@@ -17,8 +17,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.example.mealgenie.ui.theme.quicksandFamily
 
 @Composable
 fun FullScreenLoading() {
@@ -31,12 +35,19 @@ fun FullScreenLoading() {
 }
 
 @Composable
-fun EmptyState(text: String = "No se encontraron Recetes") {
+fun EmptyState(text: String = "No Recipes Found") {
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
-        Text(text)
+        Text(
+            text = text,
+            style = TextStyle(
+                fontFamily = quicksandFamily,
+                fontWeight = FontWeight.Bold,
+                fontSize = 16.sp
+            )
+        )
     }
 }
 
@@ -45,10 +56,23 @@ fun ErrorMessage(error: String, onDismiss: () -> Unit) {
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("Error") },
-        text = { Text(error) },
+        text = { Text(
+            text = error,
+            style = TextStyle(
+                fontFamily = quicksandFamily,
+                fontWeight = FontWeight.Bold,
+                fontSize = 16.sp
+            )
+        ) },
         confirmButton = {
             Button(onClick = onDismiss) {
-                Text("OK")
+                Text(
+                    text = "OK",
+                    style = TextStyle(
+                        fontFamily = quicksandFamily,
+                        fontWeight = FontWeight.Bold
+                    )
+                )
             }
         }
     )

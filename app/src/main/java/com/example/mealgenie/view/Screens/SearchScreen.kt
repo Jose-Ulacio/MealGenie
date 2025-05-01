@@ -47,6 +47,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mealgenie.R
 import com.example.mealgenie.data.model.Recipe
+import com.example.mealgenie.ui.theme.quicksandFamily
 import com.example.mealgenie.view.Screens.AuxiliaryComponents.FullScreenLoading
 import com.example.mealgenie.view.Screens.AuxiliaryComponents.MainScreenStates
 import com.example.mealgenie.view.Screens.AuxiliaryComponents.rememberMainScreenState
@@ -123,8 +124,10 @@ fun SearchScreen(
                             .align(alignment = Alignment.CenterVertically),
                         text = "Search",
                         style = TextStyle(
+                            fontFamily = quicksandFamily,
+                            fontWeight = FontWeight.Bold,
                             fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold
+
                         )
                     )
                 }
@@ -193,7 +196,13 @@ fun SearchBar(
             .fillMaxWidth()
             .height(56.dp)
             .background(MaterialTheme.colors.surface, RoundedCornerShape(28.dp)),
-        placeholder = { Text("Buscar recetas...") },
+        placeholder = { Text(
+            text = "Search Recipes...",
+            style = TextStyle(
+                fontFamily = quicksandFamily,
+                fontWeight = FontWeight.Normal
+            )
+        ) },
         leadingIcon = {
             Icon(
                 painter = painterResource(R.drawable.ic_search),
@@ -242,7 +251,11 @@ fun PlaceHolderSearch() {
             modifier = Modifier.size(64.dp)
         )
         Text(
-            text = "Buscar recetas por nombre",
+            text = "Search for Recipes by Name",
+            style = TextStyle(
+                fontFamily = quicksandFamily,
+                fontWeight = FontWeight.Normal
+            ),
             color = MaterialTheme.colors.primary,
             modifier = Modifier.padding(top = 16.dp)
         )

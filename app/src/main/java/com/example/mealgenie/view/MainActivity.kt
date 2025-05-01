@@ -195,17 +195,6 @@ fun NavegacionInferior(
                             )
                         }
                     }
-                    //Boton Modo Oscuro
-//                    IconButton(
-//                        onClick = onDarkModeToggle,
-//                        modifier = Modifier.padding(end = 8.dp)
-//                    ) {
-//                        Icon(
-//                            painter = painterResource(R.drawable.moon_fill),
-//                            contentDescription = "Modo Oscuro",
-//                            tint = MaterialTheme.colors.primary.copy(alpha = 0.3f)
-//                        )
-//                    }
                 }
             }
         }

@@ -42,6 +42,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mealgenie.R
+import com.example.mealgenie.ui.theme.quicksandFamily
 import com.example.mealgenie.view.Screens.AuxiliaryComponents.EmptyState
 import com.example.mealgenie.view.Screens.AuxiliaryComponents.FullScreenLoading
 import com.example.mealgenie.view.Screens.AuxiliaryComponents.MainScreenStates
@@ -123,8 +124,10 @@ fun FavoriteScreen(
                             .align(alignment = Alignment.CenterVertically),
                         text = "Favorites",
                         style = TextStyle(
+                            fontFamily = quicksandFamily,
+                            fontWeight = FontWeight.Bold,
                             fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold
+
                         )
                     )
                 }
@@ -151,7 +154,6 @@ fun FavoriteScreen(
                             )
                         }
                     }
-
                 }
             }
         }

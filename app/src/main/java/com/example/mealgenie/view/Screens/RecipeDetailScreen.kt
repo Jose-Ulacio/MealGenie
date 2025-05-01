@@ -40,6 +40,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -47,6 +48,7 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.mealgenie.R
 import com.example.mealgenie.data.model.RecipeDetailResponse
+import com.example.mealgenie.ui.theme.quicksandFamily
 import com.example.mealgenie.view.Screens.AuxiliaryComponents.ErrorMessage
 import com.example.mealgenie.view.Screens.AuxiliaryComponents.FullScreenLoading
 import com.example.mealgenie.viewmodel.RecipeViewModel
@@ -181,7 +183,7 @@ fun RecipeDetailContent(
                 }
             }
 
-            // Caja roja superpuesta (usando negative margin)
+            // Caja roja superpuesta sobre la imagen
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -200,8 +202,11 @@ fun RecipeDetailContent(
                 //Titulo
                 Text(
                     text = recipe.title,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 24.sp,
+                    style = TextStyle(
+                        fontFamily = quicksandFamily,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 24.sp
+                    ),
                     modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
                     )
 
@@ -274,7 +279,12 @@ fun RecipeMetadata(
             Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = "$time min",
-                fontWeight = FontWeight.Bold)
+                style = TextStyle(
+                    fontFamily = quicksandFamily,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 16.sp
+                )
+            )
         }
 
         Spacer(modifier = Modifier.width(24.dp))
@@ -303,7 +313,12 @@ fun RecipeMetadata(
             Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = "$servings Servings",
-                fontWeight = FontWeight.Bold)
+                style = TextStyle(
+                    fontFamily = quicksandFamily,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 16.sp
+                )
+            )
         }
     }
 }
@@ -316,16 +331,22 @@ fun TextSection(
     Column(modifier = Modifier.padding(16.dp)) {
         Text(
             text = title,
-            fontWeight = FontWeight.Bold,
-            fontSize = 24.sp,
-            fontFamily = FontFamily.Monospace,
+            style = TextStyle(
+                fontFamily = quicksandFamily,
+                fontWeight = FontWeight.Bold,
+                fontSize = 24.sp
+            ),
             modifier = Modifier.padding(bottom = 8.dp)
         )
 
         items.forEach {item ->
             Text(
                 text = "✔ $item",
-                fontFamily = FontFamily.Serif,
+                style = TextStyle(
+                    fontFamily = quicksandFamily,
+                    fontWeight = FontWeight.Normal,
+                    fontSize = 16.sp
+                ),
                 modifier = Modifier.padding(vertical = 4.dp, horizontal = 4.dp)
             )
         }

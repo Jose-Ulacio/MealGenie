@@ -189,6 +189,7 @@ fun HomeScreen(
                             text = "Home",
                             style = TextStyle(
                                 fontSize = 12.sp,
+                                fontFamily = quicksandFamily,
                                 fontWeight = FontWeight.Bold
                             )
                         )
@@ -287,6 +288,7 @@ fun RecipeTypeChips(
             ) {
                 Text(
                     text = item,
+                    fontFamily = quicksandFamily,
                     fontSize = 6.sp,
                     fontWeight = FontWeight.Bold,
                     color = if (isSelected) MaterialTheme.colors.onPrimary
@@ -367,6 +369,7 @@ fun RecipeCard(
                     text = recipe.title,
                     color = MaterialTheme.colors.onSurface,
                     style = TextStyle(
+                        fontFamily = quicksandFamily,
                         fontWeight = FontWeight.Bold,
                         fontSize = 12.sp
                     ),
