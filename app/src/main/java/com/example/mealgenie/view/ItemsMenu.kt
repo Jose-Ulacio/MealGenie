@@ -5,7 +5,7 @@ import com.example.mealgenie.R
 sealed class ItemsMenu(
     val icon: Int,
     val title: String,
-    val route: String
+    val route: String?
 ) {
     object HomeScreen: ItemsMenu(
         icon = R.drawable.ic_home,
@@ -21,5 +21,10 @@ sealed class ItemsMenu(
         icon = R.drawable.ic_search,
         title = "Search",
         route = "PantallaSearch"
+    )
+    object DarkModeButtom: ItemsMenu(
+        icon = R.drawable.moon_fill,
+        title = "darkMode",
+        route = null
     )
 }

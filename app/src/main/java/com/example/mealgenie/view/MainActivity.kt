@@ -87,7 +87,8 @@ fun MainDesign(
     val navigationItem = listOf(
         HomeScreen,
         FavoriteScreen,
-        SearchScreen
+        SearchScreen,
+        DarkModeButtom
     )
 
     Box(modifier = Modifier
@@ -174,7 +175,13 @@ fun NavegacionInferior(
                         navigationItem.forEach { item ->
                             BottomNavigationItem(
                                 selected = currentRoute == item.route,
-                                onClick = { navController.navigate(item.route) },
+                                onClick = {
+                                    if (item is DarkModeButtom){
+                                        onDarkModeToggle()
+                                    } else {
+                                        item.route?.let { navController.navigate(it) }
+                                    }
+                                },
                                 icon = {
                                     Icon(
                                         painter = painterResource(id = item.icon),
@@ -189,16 +196,16 @@ fun NavegacionInferior(
                         }
                     }
                     //Boton Modo Oscuro
-                    IconButton(
-                        onClick = onDarkModeToggle,
-                        modifier = Modifier.padding(end = 8.dp)
-                    ) {
-                        Icon(
-                            painter = painterResource(R.drawable.moon_fill),
-                            contentDescription = "Modo Oscuro",
-                            tint = MaterialTheme.colors.primary.copy(alpha = 0.3f)
-                        )
-                    }
+//                    IconButton(
+//                        onClick = onDarkModeToggle,
+//                        modifier = Modifier.padding(end = 8.dp)
+//                    ) {
+//                        Icon(
+//                            painter = painterResource(R.drawable.moon_fill),
+//                            contentDescription = "Modo Oscuro",
+//                            tint = MaterialTheme.colors.primary.copy(alpha = 0.3f)
+//                        )
+//                    }
                 }
             }
         }

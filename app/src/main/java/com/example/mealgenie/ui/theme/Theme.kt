@@ -41,10 +41,10 @@ private val DarkColorScheme = darkColors(
     secondary = Color(0xFFA2002B),      // Red_Primary
     background = Color(0xFF121212),     // Fondo oscuro
     surface = Color(0xFF1E1E1E),       // Superficies oscuras
-    onPrimary = Color.White,            // white
+    onPrimary = Color.Black,            // white
     onSecondary = Color.White,          // white
     onBackground = Color(0xFFEFF5F4),   // Background (claro, para contraste)
-    onSurface = Color(0xFF070707),    // test_beige (para textos)
+    onSurface = Color.White,    // test_beige (para textos)
     secondaryVariant = Color(0xFF047959)
 )
 

@@ -304,6 +304,7 @@ fun RecipeCard(
         modifier = Modifier
             .fillMaxWidth()
             .padding(4.dp),
+        elevation = 0.dp,
         shape = RoundedCornerShape(12.dp)
     ) {
         Column(

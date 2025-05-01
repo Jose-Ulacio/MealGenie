@@ -24,7 +24,7 @@ fun NavigationHost(
 ) {
     NavHost(
         navController = navController,
-        startDestination = HomeScreen.route,
+        startDestination = HomeScreen.route!!,
     ){
         composable(HomeScreen.route){
             LaunchedEffect(Unit) {
@@ -37,7 +37,7 @@ fun NavigationHost(
                     navController.navigate("recipe/$id")
                 })
         }
-        composable(FavoriteScreen.route){
+        composable(FavoriteScreen.route!!){
             LaunchedEffect(Unit) {
                 mainState.updateVisibility(true)
             }
@@ -48,7 +48,7 @@ fun NavigationHost(
                     navController.navigate("recipe/$id")
                 })
         }
-        composable(SearchScreen.route){
+        composable(SearchScreen.route!!){
             LaunchedEffect(Unit) {
                 mainState.updateVisibility(true)
             }
