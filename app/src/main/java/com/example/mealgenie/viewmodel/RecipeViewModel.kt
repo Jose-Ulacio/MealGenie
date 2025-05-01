@@ -8,6 +8,7 @@ import com.example.mealgenie.data.model.Recipe
 import com.example.mealgenie.data.model.RecipeDetailResponse
 import com.example.mealgenie.data.repository.FavoriteRepository
 import com.example.mealgenie.data.repository.RecipeRepository
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -113,6 +114,7 @@ class RecipeViewModel(context: Context): ViewModel() {
 
         viewModelScope.launch {
             _isLoadingMore.value = true
+            delay(2000)
             try {
                 val result = repository.getRecipes(
                     type = _selectedType.value,

@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
+import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
 import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -53,6 +54,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -61,6 +63,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.example.mealgenie.R
 import com.example.mealgenie.data.model.Recipe
+import com.example.mealgenie.ui.theme.quicksandFamily
+import com.example.mealgenie.view.Screens.AuxiliaryComponents.DashLine
 import com.example.mealgenie.view.Screens.AuxiliaryComponents.EmptyState
 import com.example.mealgenie.view.Screens.AuxiliaryComponents.ErrorMessage
 import com.example.mealgenie.view.Screens.AuxiliaryComponents.FullScreenLoading
@@ -69,6 +73,7 @@ import com.example.mealgenie.view.Screens.AuxiliaryComponents.rememberMainScreen
 import com.example.mealgenie.viewmodel.RecipeViewModel
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
@@ -102,9 +107,18 @@ fun HomeScreen(
 
             lastScrollPosition = currentScrollPosition
         } else {
-            // Al finalizar el scroll, nos aseguramos de mostrar la barra
-            if (!mainState.isBottomBarVisible) {
-                mainState.updateVisibility(true)
+            val layoutInfo = gridState.layoutInfo
+            val lastItemVisible = layoutInfo.visibleItemsInfo.lastOrNull()
+
+            if (lastItemVisible?.index != null && lastItemVisible.index >= layoutInfo.totalItemsCount - 2){
+                if (mainState.isBottomBarVisible) {
+                    mainState.updateVisibility(false)
+                }
+            } else {
+                // Al finalizar el scroll, nos aseguramos de mostrar la barra
+                if (!mainState.isBottomBarVisible) {
+                    mainState.updateVisibility(true)
+                }
             }
         }
     }
@@ -415,62 +429,61 @@ fun RecipeGrid(
                 RecipeCard(
                     recipe = recipe,
                     viewModel = viewModel,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
                         .clickable { onRecipeClick(recipe.id) }
                 )
             }
-            item() {
+            item(span = StaggeredGridItemSpan.FullLine) {
+                Spacer(modifier = Modifier.height(18.dp))
+            }
+            item(span = StaggeredGridItemSpan.FullLine) {
                 if (isLoadingMore) {
                     LoadingMoreItem()
                 }
             }
-        }
-    }
-
-    //Footer de Carga
-    if (isLoadingMore) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            CircularProgressIndicator(
-                modifier = Modifier.size(24.dp),
-                strokeWidth = 2.dp,
-                color = MaterialTheme.colors.primary
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = "Cargando más recetas...",
-                style = TextStyle(
-                    color = MaterialTheme.colors.primary,
-                    fontSize = 14.sp
-                )
-            )
+            item(span = StaggeredGridItemSpan.FullLine) {
+                Spacer(modifier = Modifier.height(18.dp))
+            }
         }
     }
 }
 
 @Composable
 fun LoadingMoreItem() {
-    Column(
+    Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        CircularProgressIndicator(
-            modifier = Modifier.size(24.dp),
-            color = MaterialTheme.colors.primary,
-            strokeWidth = 2.dp
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(
-            text = "Loading More Recipes...",
-            color = MaterialTheme.colors.primary
-        )
+        Box(modifier = Modifier.weight(0.25f)){
+            DashLine(
+                step = 4.dp
+            )
+        }
+        Box(modifier = Modifier.weight(0.5f)){
+            Box(modifier = Modifier.padding(horizontal = 6.dp)){
+                Text(
+                    text = "Loading More Recipes...",
+                    color = MaterialTheme.colors.primary,
+                    modifier = Modifier.fillMaxWidth(),
+                    style = TextStyle(
+                        textAlign = TextAlign.Center,
+                        fontSize = 12.sp,
+                        fontFamily = quicksandFamily,
+                        fontWeight = FontWeight.Bold
+                    )
+                )
+            }
+        }
+        Box(modifier = Modifier.weight(0.25f)){
+            DashLine(
+                step = 4.dp
+            )
+        }
     }
 }
+
 
