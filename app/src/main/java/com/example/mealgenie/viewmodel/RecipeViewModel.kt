@@ -60,6 +60,10 @@ class RecipeViewModel(context: Context): ViewModel() {
     private val _recipeDetail = MutableStateFlow<RecipeDetailResponse?>(null)
     val recipeDetail: StateFlow<RecipeDetailResponse?> = _recipeDetail.asStateFlow()
 
+    //recetas aleatorias
+    private val _randomRecipe = MutableStateFlow<Recipe?>(null)
+    val randomRecipe: StateFlow<Recipe?> = _randomRecipe.asStateFlow()
+
     init {
         loadRecipes()
     }
@@ -176,6 +180,25 @@ class RecipeViewModel(context: Context): ViewModel() {
     //Funcion para limpiar Error
     fun clearError(){
         _error.value = null
+    }
+
+    //Funciones para obtener recetas aleatorias
+    fun fetchRandomRecipe() {
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                _randomRecipe.value = repository.getRandomRecipe()
+            } catch (e: Exception){
+                _error.value = "Error al cargar la receta aleatoria"
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    //Limpiar estado
+    fun clearRandomRecipe() {
+        _randomRecipe.value = null
     }
 
     /*Funciones para Manejo de Favoritos (Database)*/

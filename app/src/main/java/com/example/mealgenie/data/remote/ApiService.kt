@@ -1,6 +1,7 @@
 package com.example.mealgenie.data.remote
 
 import com.example.mealgenie.data.model.RecipeDetailResponse
+import com.example.mealgenie.data.model.RecipeRandomResponse
 import com.example.mealgenie.data.model.RecipeResponse
 import io.ktor.client.call.body
 import io.ktor.client.request.get
@@ -21,7 +22,7 @@ class ApiService() {
         number: Int
     ): Result<RecipeResponse> {
         return try {
-            val response = apiClient.get("$BASE_URL/recipes/complexSearch"){
+            val response = apiClient.get("$BASE_URL/recipes/complexSearch") {
                 parameter("apiKey", API_KEY)
                 parameter("offset", offset)
                 parameter("number", number)
@@ -29,12 +30,12 @@ class ApiService() {
                 type?.let { parameter("type", it) }
 
             }
-            if (response.status.isSuccess()){
+            if (response.status.isSuccess()) {
                 Result.success(response.body())
             } else {
                 Result.failure(Exception("Error: ${response.status}"))
             }
-        } catch (e: Exception){
+        } catch (e: Exception) {
             e.printStackTrace()
             Result.failure(e)
         }
@@ -45,7 +46,7 @@ class ApiService() {
         query: String?,
         number: Int
     ): RecipeResponse? {
-        return apiClient.get("$BASE_URL/recipes/complexSearch"){
+        return apiClient.get("$BASE_URL/recipes/complexSearch") {
             parameter("apiKey", API_KEY)
             parameter("query", query)
             parameter("number", number)
@@ -53,11 +54,27 @@ class ApiService() {
     }
 
     //Obtener detalles de la Receta
-    suspend fun getRecipeDetails(id: Int): RecipeDetailResponse{
-        return apiClient.get("$BASE_URL/recipes/$id/information"){
+    suspend fun getRecipeDetails(id: Int): RecipeDetailResponse {
+        return apiClient.get("$BASE_URL/recipes/$id/information") {
             parameter("apiKey", API_KEY)
         }.body()
     }
 
-
+    //Obtener una Receta Aleatoria
+    suspend fun getRandomRecipe(id: Int): Result<RecipeRandomResponse> {
+        return try {
+            val response = apiClient.get("$BASE_URL/recipes/random") {
+                parameter("apiKey", API_KEY)
+                parameter("number", id)
+            }
+            if (response.status.isSuccess()) {
+                Result.success(response.body())
+            } else {
+                Result.failure(Exception("Error: ${response.status}"))
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Result.failure(e)
+        }
+    }
 }

@@ -1,5 +1,6 @@
 package com.example.mealgenie.data.repository
 
+import com.example.mealgenie.data.model.Recipe
 import com.example.mealgenie.data.model.RecipeDetailResponse
 import com.example.mealgenie.data.model.RecipeResponse
 import com.example.mealgenie.data.remote.ApiService
@@ -23,5 +24,10 @@ class RecipeRepository() {
     //Obtener Detalles de la Receta
     suspend fun getRecipeDetails(id: Int): RecipeDetailResponse{
         return apiService.getRecipeDetails(id)
+    }
+
+    //Obtener Receta Aleatoria
+    suspend fun getRandomRecipe(): Recipe? {
+        return apiService.getRandomRecipe(1).getOrNull()?.recipes?.firstOrNull()
     }
 }

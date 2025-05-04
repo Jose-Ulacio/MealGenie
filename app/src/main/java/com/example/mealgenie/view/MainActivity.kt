@@ -21,13 +21,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
-import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Surface
@@ -43,7 +42,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
@@ -91,7 +89,7 @@ fun MainDesign(
     val navController = rememberNavController()
     val scaffoldState = rememberScaffoldState()
     val mainState = rememberMainScreenState()
-    val recipes by viewModel.recipes.collectAsState()
+    val randomRecipe by viewModel.randomRecipe.collectAsState()
 
     //Estado para controlar la visibilidad del FAB
     val showFab = remember { mutableStateOf(false) }
@@ -100,17 +98,21 @@ fun MainDesign(
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
-    //Funcion para navegar a receta random
-    fun navigateToRandomRecipe() {
-        if (recipes.isNotEmpty()){
-            val randomRecipe = recipes.random()
-            navController.navigate("recipe/${randomRecipe.id}")
-        }
-    }
-
     //Actualizar showFab basado en la ruta actual
     LaunchedEffect(currentRoute) {
         showFab.value = currentRoute == HomeScreen.route
+    }
+
+    LaunchedEffect(randomRecipe) {
+        randomRecipe?.let { recipe ->
+            navController.navigate("recipe/${recipe.id}")
+            viewModel.clearRandomRecipe() // Resetear después de navegar
+        }
+    }
+
+    // Función del FAB
+    fun navigateToRandomRecipe() {
+        viewModel.fetchRandomRecipe()
     }
 
     val navigationItem = listOf(
@@ -162,8 +164,9 @@ fun MainDesign(
         if (showFab.value && mainState.isBottomBarVisible) {
             Box(
                 modifier = Modifier
+                    .systemBarsPadding()
                     .align(Alignment.BottomCenter)
-                    .padding(bottom = 68.dp)
+                    .padding(bottom = 48.dp)
             ){
                 Box(
                     modifier = Modifier
