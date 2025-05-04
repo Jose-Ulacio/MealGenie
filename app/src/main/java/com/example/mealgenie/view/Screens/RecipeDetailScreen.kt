@@ -111,7 +111,7 @@ fun RecipeDetailScreen(
             Icon(
                 imageVector = Icons.Default.ArrowBack,
                 contentDescription = "Back",
-                tint = MaterialTheme.colors.secondary
+                tint = MaterialTheme.colors.primary
             )
         }
     }
@@ -177,8 +177,8 @@ fun RecipeDetailContent(
                     Icon(
                         imageVector = if (isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
                         contentDescription = "Favorite",
-                        tint = if (isFavorite) MaterialTheme.colors.secondary
-                        else MaterialTheme.colors.secondary
+                        tint = if (isFavorite) MaterialTheme.colors.primary
+                        else MaterialTheme.colors.primary
                     )
                 }
             }
@@ -186,56 +186,63 @@ fun RecipeDetailContent(
             // Caja roja superpuesta sobre la imagen
             Box(
                 modifier = Modifier
+                    .padding(horizontal = 16.dp)
                     .fillMaxWidth()
                     .height(36.dp) // Altura de la parte superpuesta
                     .align(Alignment.BottomStart)
                     .clip(RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp))
-                    .background(MaterialTheme.colors.secondaryVariant)
+                    .background(colorResource(R.color.test_beige))
             )
         }
         Box(
-            modifier = Modifier
-                .background(MaterialTheme.colors.secondaryVariant)
-                .fillMaxWidth()
+            Modifier.fillMaxSize()
+                .background(MaterialTheme.colors.background)
         ){
-            Column {
-                //Titulo
-                Text(
-                    text = recipe.title,
-                    style = TextStyle(
-                        fontFamily = quicksandFamily,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 24.sp
-                    ),
-                    modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
+            Box(
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
+                    .background(colorResource(R.color.test_beige))
+                    .fillMaxWidth()
+            ){
+                Column {
+                    //Titulo
+                    Text(
+                        text = recipe.title,
+                        style = TextStyle(
+                            fontFamily = quicksandFamily,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 26.sp
+                        ),
+                        modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
                     )
 
-                //Informacion Basica
-                RecipeMetadata(
-                    time = recipe.readyInMinutes,
-                    servings = recipe.servings
-                )
-
-                Column {
-                    //Ingredientes
-                    TextSection(
-                        title = "Ingredients:",
-                        items = recipe.extendedIngredients.map {
-                            "${it.amount} ${it.unit} ${it.name}"
-                        }
+                    //Informacion Basica
+                    RecipeMetadata(
+                        time = recipe.readyInMinutes,
+                        servings = recipe.servings
                     )
-                }
 
-                Column {
-                    //Instrucciones
-                    TextSection(
-                        title = "Instructions:",
-                        items = recipe.analyzedInstructions.flatMap { instruction ->
-                            instruction.steps.map { step ->
-                                "Step ${step.number}: ${step.text}"
+                    Column {
+                        //Ingredientes
+                        TextSection(
+                            title = "Ingredients:",
+                            items = recipe.extendedIngredients.map {
+                                "${it.amount} ${it.unit} ${it.name}"
                             }
-                        }
-                    )
+                        )
+                    }
+
+                    Column {
+                        //Instrucciones
+                        TextSection(
+                            title = "Instructions:",
+                            items = recipe.analyzedInstructions.flatMap { instruction ->
+                                instruction.steps.map { step ->
+                                    "Step ${step.number}: ${step.text}"
+                                }
+                            }
+                        )
+                    }
                 }
             }
         }
@@ -271,7 +278,7 @@ fun RecipeMetadata(
                     Icon(
                         painter = painterResource(R.drawable.ic_schedule),
                         contentDescription = "time",
-                        tint = MaterialTheme.colors.secondary,
+                        tint = MaterialTheme.colors.primary,
                         modifier = Modifier.size(36.dp)
                     )
                 }
@@ -305,7 +312,7 @@ fun RecipeMetadata(
                     Icon(
                         painter = painterResource(R.drawable.ic_person),
                         contentDescription = "time",
-                        tint = MaterialTheme.colors.secondary,
+                        tint = MaterialTheme.colors.primary,
                         modifier = Modifier.size(36.dp)
                     )
                 }
@@ -334,7 +341,7 @@ fun TextSection(
             style = TextStyle(
                 fontFamily = quicksandFamily,
                 fontWeight = FontWeight.Bold,
-                fontSize = 24.sp
+                fontSize = 22.sp
             ),
             modifier = Modifier.padding(bottom = 8.dp)
         )
