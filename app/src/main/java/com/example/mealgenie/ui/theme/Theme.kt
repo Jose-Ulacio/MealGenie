@@ -45,7 +45,8 @@ private val DarkColorScheme = darkColors(
     onSecondary = Color.White,          // white
     onBackground = Color(0xFFEFF5F4),   // Background (claro, para contraste)
     onSurface = Color.White,    // test_beige (para textos)
-    secondaryVariant = Color(0xFF047959)
+    secondaryVariant = Color(0xFF047959),
+    primaryVariant = Color.White
 )
 
 private val LightColorScheme = lightColors(
@@ -54,10 +55,11 @@ private val LightColorScheme = lightColors(
     background = Color(0xFFEFF5F4),     // Background
     surface = Color(0xFFFFFFFF),        // test_beige (para cards/superficies)
     onPrimary = Color.White,            // white
-    onSecondary = Color.White,          // white
+    onSecondary = Color(0xFF989898),          // white
     onBackground = Color.Black,         // black (textos sobre fondo claro)
     onSurface = Color.Black,             // black (textos sobre superficies)
-    secondaryVariant = Color(0xFFF5E9DC)
+    secondaryVariant = Color(0xFFF5E9DC),
+    primaryVariant = Color.White
 )
 
 @Composable

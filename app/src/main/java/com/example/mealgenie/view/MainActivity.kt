@@ -143,8 +143,7 @@ fun MainDesign(
                         NavegacionInferior(
                             navController = navController,
                             navigationItem = navigationItem,
-                            onDarkModeToggle = onDarkModeToggle,
-                            isDarkMode = isDarkMode
+                            onDarkModeToggle = onDarkModeToggle
                         )
                     }
                 }
@@ -204,8 +203,7 @@ fun currentRoute(navController: NavHostController): String? {
 fun NavegacionInferior(
     navController: NavHostController,
     navigationItem: List<ItemsMenu>,
-    onDarkModeToggle: () -> Unit,
-    isDarkMode: Boolean
+    onDarkModeToggle: () -> Unit
 ) {
     Box(
         modifier = Modifier

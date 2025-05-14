@@ -89,6 +89,13 @@ dependencies {
 
     implementation ("com.google.accompanist:accompanist-swiperefresh:0.27.0")
 
+    //Constraint
+    implementation ("androidx.constraintlayout:constraintlayout-compose:1.1.1")
+
+    implementation ("com.google.accompanist:accompanist-systemuicontroller:0.36.0")
+
+
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

@@ -26,18 +26,14 @@ import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
 import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
-import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
 import androidx.compose.material.IconToggleButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
@@ -53,7 +49,6 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
@@ -76,8 +71,9 @@ import com.example.mealgenie.view.Screens.AuxiliaryComponents.MainScreenStates
 import com.example.mealgenie.view.Screens.AuxiliaryComponents.rememberMainScreenState
 import com.example.mealgenie.viewmodel.RecipeViewModel
 import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.SwipeRefreshIndicator
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
-import kotlinx.coroutines.delay
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import kotlinx.coroutines.launch
 
 @Composable
@@ -96,6 +92,23 @@ fun HomeScreen(
     val gridState = rememberLazyStaggeredGridState()
     var lastScrollPosition by remember { mutableIntStateOf(0) }
     val swipeRefreshState = rememberSwipeRefreshState(isRefreshing = isRefreshing)
+
+    // Remember a SystemUiController
+    val systemUiController = rememberSystemUiController()
+
+    val colorBackground = MaterialTheme.colors.background
+
+    DisposableEffect(systemUiController) {
+        // Update all of the system bar colors to be transparent, and use
+        // dark icons if we're in light theme
+        systemUiController.setSystemBarsColor(
+            color = colorBackground
+        )
+
+        // setStatusBarColor() and setNavigationBarColor() also exist
+
+        onDispose {}
+    }
 
     //Detectar cambios en el scroll
     LaunchedEffect(gridState.isScrollInProgress) {
@@ -149,7 +162,15 @@ fun HomeScreen(
         state = swipeRefreshState,
         onRefresh = { viewModel.refreshRecipe() },
         modifier = Modifier
-            .background(MaterialTheme.colors.background)
+            .background(MaterialTheme.colors.background),
+        indicator = {state, refreshTrigger ->
+            SwipeRefreshIndicator(
+                state = state,
+                refreshTriggerDistance = refreshTrigger,
+                scale = true,
+                contentColor = MaterialTheme.colors.primary,
+                )
+        }
     ) {
         Box(
             modifier = Modifier
@@ -236,8 +257,6 @@ fun HomeScreen(
             }
         }
     }
-
-
 }
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -267,8 +286,8 @@ fun RecipeTypeChips(
     }
 
     FlowRow(
-        modifier = Modifier.padding(8.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = Modifier.padding(start = 8.dp, end = 8.dp, bottom = 8.dp),
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
         verticalArrangement = Arrangement.spacedBy(6.dp)
     ) {
         chipItems.forEach { item ->
@@ -283,7 +302,7 @@ fun RecipeTypeChips(
                         else Color.Transparent
                     )
                     .border(
-                        width = 1.dp,
+                        width = 2.dp,
                         color = MaterialTheme.colors.secondary,
                         shape = RoundedCornerShape(16.dp)
                     )
@@ -422,7 +441,8 @@ fun RecipeGrid(
     viewModel: RecipeViewModel,
     onRecipeClick: (Int) -> Unit
 ) {
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(modifier = Modifier.fillMaxSize()
+        .padding(bottom = 8.dp)) {
         LazyVerticalStaggeredGrid(
             columns = StaggeredGridCells.Fixed(2),
             state = gridState,
@@ -492,6 +512,3 @@ fun LoadingMoreItem() {
         }
     }
 }
-
-
-
